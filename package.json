@@ -1,0 +1,24 @@
+{
+  "name": "metemq-thing-js",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:metemq/metemq-thing-js.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp-nodemon": "^2.1.0",
+    "typescript": "^1.8.10",
+    "gulp": "^3.9.1",
+    "gulp-typescript": "^2.13.6"
+  },
+  "dependencies": {
+    "mqtt": "^1.12.0"
+  }
+}
