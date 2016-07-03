@@ -32,24 +32,34 @@ function sayHello() {
     client.publish(`${THING_ID}/Hello`, `World! [${i++}]`);
 }
 
+/**
+ * Options for MQTT subscribing
+ */
 interface SubscribeOptions{
-  collection?  :string;
+  collection? :string;
   documentId? :string;
-  field?       :string;
-  event?       :string;
+  field?      :string;
+  event?      :string;
 }
 
-// :thingId/:publish_name/:collection/:document_id/:field/added
+/**
+ * Function for MQTT subscribing a topic
+ * @param publishName  the publish-name that this thing want to subscribe.
+ * @param options?     options for subscribing
+ */
 function subscribe( publishName :string, options? :SubscribeOptions ) {
   if( typeof publishName !== 'string' )
     throw new Error( 'publish name should be string!' )
 
-  let collection = options.collection  || "+";
+  let collection = options.collection || "+";
   let documentId = options.documentId || "+";
-  let field      = options.field       || "+";
-  let event      = options.event       || "+";
+  let field      = options.field      || "+";
+  let event      = options.event      || "+";
 
+  // topic's format is
+  // ":thingId/:publish_name/:collection/:document_id/:field/added"
   let topic      = `${THING_ID}/${publishName}/${collection}/${documentId}/${field}/${event}`;
 
+  // subscribe
   client.subscribe( topic );
 }
