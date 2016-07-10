@@ -18,8 +18,9 @@
     "compileOnSave": true,
     "files": [
         "src/config.ts",
+        "src/DDMQ/Thing.ts",
+        "src/DDMQ/utils.ts",
         "src/index.ts",
-        "src/Thing.ts",
         "typings/index.d.ts"
     ],
     "atom": {
