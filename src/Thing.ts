@@ -37,14 +37,15 @@ export class Thing {
      }
 
      this.client = mqtt.connect( host, this.options );
-
    }
 
    /**
     * a Function same with 'this.client.on'
     */
-   on( event :string, listener :Function ) {
+   on( event :string, listener :Function ) :Thing{
      this.client.on( event, listener );
+
+     return this;
    }
 
   /**
@@ -53,13 +54,15 @@ export class Thing {
    * @param {string} publishName - what this thing is going to subscribe
    * @example subscribe('mPublishName');
    */
-  subscribe( publishName :string ) :void{
+  subscribe( publishName :string ) :Thing{
     if( typeof publishName !== 'string' )
       throw new Error( 'publish name should be string!' )
 
     let topic = `${this.options.clientId}/${publishName}/#`;
 
     this.client.subscribe( topic );
+
+    return this;
   }
 
   /**
@@ -70,7 +73,7 @@ export class Thing {
    * @example subscribeTopic('mPublishName');
    * @example subscribeTopic('mPublishName', { event: 'added' });
    */
-  subscribeTopic( publishName :string, options? :SubscribeTopicOptions ) :void{
+  subscribeTopic( publishName :string, options? :SubscribeTopicOptions ) :Thing{
     if( typeof publishName !== 'string' )
       throw new Error( 'publish name should be string!' )
 
@@ -84,6 +87,8 @@ export class Thing {
                    + `${ documentId }/${ field       }/${ event      }`;
 
     this.client.publish( topic, payload );
+
+    return this;
   }
 
 
@@ -94,8 +99,10 @@ export class Thing {
   * @param {string} payload - publication payload
   * @example publish(`Hello`, `World! [${i++}]`);
   */
-  publish(publishName :string, payload :string) {
+  publish(publishName :string, payload :string) :Thing{
     this.client.publish(`${this.options.clientId}/${publishName}`, `${payload}`);
+
+    return this;
   }
 
 }
