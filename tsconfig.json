@@ -19,8 +19,6 @@
     "files": [
         "src/config.ts",
         "src/index.ts",
-        "src/src/config.ts",
-        "src/src/index.ts",
         "src/Thing.ts",
         "typings/index.d.ts"
     ],

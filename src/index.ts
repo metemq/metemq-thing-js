@@ -8,7 +8,7 @@ let thing = new Thing(THING_ID, USER_NAME, PASSWORD, HOST);
 let intervalObject;
 
 thing.on('connect', function() {
-    thing.subscribe('$inbox');
+    thing.subscribe('$inbox', ()=>{ console.log("subscribe $inbox !!"); });
 
     sayHello();
     intervalObject = setInterval(sayHello, 1000);
@@ -25,5 +25,5 @@ thing.on('close', () => {
 
 let i = 0;
 function sayHello() {
-   thing.publish(`Hello`, `World! [${i++}]`);
+   thing.publish(`Hello`, `World! [${i++}]`, ()=>{ console.log(`say hello world! ${i}`); });
 }

@@ -2,9 +2,6 @@ import * as mqtt from 'mqtt';
 
 /**
  * Options for MQTT subscription for a topic
- *
- * format of topic for subscribing is
- * ":thingId/:publish_name/:collection/:document_id/:field/:event"
  */
 export interface SubscribeTopicOptions{
   collection? :string;
@@ -17,7 +14,7 @@ export interface SubscribeTopicOptions{
 /**
  * Thing class
  */
-export class Thing {
+export class Thing{
 
   /**
    * Member Variables
@@ -41,6 +38,7 @@ export class Thing {
 
    /**
     * a Function same with 'this.client.on'
+    * @return Thing
     */
    on( event :string, listener :Function ) :Thing{
      this.client.on( event, listener );
@@ -51,56 +49,70 @@ export class Thing {
   /**
    * Function for MQTT subscription a publication
    *
-   * @param {string} publishName - what this thing is going to subscribe
-   * @example subscribe('mPublishName');
+   * @param {string} publishName - what this thing is subscribing
+   * @param {object} [optionsOrCallback] - options for subscribing or callback
+   * @param {function} [callback] - callback
+   * @return Thing
+   * @example subscribeTopic('mPublishName');
+   * @example subscribeTopic('mPublishName', { event: 'added' });
    */
-  subscribe( publishName :string ) :Thing{
+  subscribe( publishName :string, optionsOrCallback? :SubscribeTopicOptions, callback? ) :Thing{
     if( typeof publishName !== 'string' )
       throw new Error( 'publish name should be string!' )
+    if( typeof optionsOrCallback === 'function')
+      callback = optionsOrCallback;
+    if( callback && typeof callback !== 'function')
+      throw new Error( 'callback should be function!' )
 
-    let topic = `${this.options.clientId}/${publishName}/#`;
+    let thingId = this.options.clientId;
+    let topic   = `${ thingId }/${ publishName }/#`;
 
-    this.client.subscribe( topic );
+    this.client.subscribe( topic, () => {
+      this.DDMQSubscribe(publishName, optionsOrCallback||{}, callback );
+    } );
 
     return this;
   }
 
   /**
-   * Function for MQTT subscription a topic
+   * Function for DDMQ Subscription
    *
    * @param {string} publishName - what this thing is subscribing
-   * @param {Array} [options] - options for subscribing
-   * @example subscribeTopic('mPublishName');
-   * @example subscribeTopic('mPublishName', { event: 'added' });
+   * @param {object} [options] - options for subscribing
+   * @param {function} [callback] - callback
+   * @return Thing
+   * @example DDMQSubscribeTopic('mPublishName');
+   * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
    */
-  subscribeTopic( publishName :string, options? :SubscribeTopicOptions ) :Thing{
+  private DDMQSubscribe( publishName :string, options :SubscribeTopicOptions, callback? :Function ) :Thing{
     if( typeof publishName !== 'string' )
       throw new Error( 'publish name should be string!' )
 
+    let thingId    = this.options.clientId;
     let collection = options.collection || "+";
     let documentId = options.documentId || "+";
     let field      = options.field      || "+";
     let event      = options.event      || "+";
     let payload    = options.payload    || null;
 
-    let topic      = `${ this.options.clientId   }/${ publishName }/${ collection }/`
-                   + `${ documentId }/${ field       }/${ event      }`;
+    let topic      = `${ thingId }/$sub/${ publishName }/${ collection }/`
+                   + `${ documentId   }/${ field       }/${ event      }`;
 
-    this.client.publish( topic, payload );
+    this.client.publish( topic, payload, callback );
 
     return this;
   }
-
 
  /**
   * Function for MQTT publication
   *
   * @param {string} publishName - what this thing is publishing
   * @param {string} payload - publication payload
+  * @return Thing
   * @example publish(`Hello`, `World! [${i++}]`);
   */
-  publish(publishName :string, payload :string) :Thing{
-    this.client.publish(`${this.options.clientId}/${publishName}`, `${payload}`);
+  publish(publishName :string, payload :string, callback? :Function) :Thing{
+    this.client.publish(`${this.options.clientId}/${publishName}`, `${payload}`, callback);
 
     return this;
   }
