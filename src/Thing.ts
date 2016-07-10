@@ -1,5 +1,4 @@
 import * as mqtt from 'mqtt';
-import {THING_ID, USER_NAME, PASSWORD, HOST} from './config';
 
 /**
  * Options for MQTT subscription for a topic
@@ -58,7 +57,7 @@ export class Thing {
     if( typeof publishName !== 'string' )
       throw new Error( 'publish name should be string!' )
 
-    let topic = `${THING_ID}/${publishName}/#`;
+    let topic = `${this.options.clientId}/${publishName}/#`;
 
     this.client.subscribe( topic );
   }
@@ -81,7 +80,7 @@ export class Thing {
     let event      = options.event      || "+";
     let payload    = options.payload    || null;
 
-    let topic      = `${ THING_ID   }/${ publishName }/${ collection }/`
+    let topic      = `${ this.options.clientId   }/${ publishName }/${ collection }/`
                    + `${ documentId }/${ field       }/${ event      }`;
 
     this.client.publish( topic, payload );
@@ -89,14 +88,14 @@ export class Thing {
 
 
  /**
-  *  Function for MQTT publication
+  * Function for MQTT publication
   *
   * @param {string} publishName - what this thing is publishing
   * @param {string} payload - publication payload
   * @example publish(`Hello`, `World! [${i++}]`);
   */
   publish(publishName :string, payload :string) {
-    this.client.publish(`${THING_ID}/${publishName}`, `${payload}`);
+    this.client.publish(`${this.options.clientId}/${publishName}`, `${payload}`);
   }
 
 }
