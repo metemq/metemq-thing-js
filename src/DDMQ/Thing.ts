@@ -32,28 +32,73 @@ export module Thing {
       this.publishName = publishName;
     }
 
-    onadded( func :Function ){
+    /**
+     * Listener for Added event
+     * @param {Function} function
+     * @return Thing.Subscription
+     */
+    onadded( func :Function ) :Thing.Subscription{
       this.onevent( 'added', func );
+      return this;
     }
 
-    onchanged( func :Function ){
+    /**
+     * Listener for Changed event
+     * @param {Function} function
+     * @return Thing.Subscription
+     */
+    onchanged( func :Function ) :Thing.Subscription{
       this.onevent( 'changed', func );
+      return this;
     }
 
-    onremoved( func :Function ){
+    /**
+     * Listener for Removed event
+     * @param {Function} function
+     * @return Thing.Subscription
+     */
+    onremoved( func :Function ) :Thing.Subscription{
       this.onevent( 'removed', func );
+      return this;
     }
 
-    onevent( ev :string, func :Function ){
+    /**
+     * Listener for Added event
+     * @param {string} ev
+     * @param {Function} function
+     * @return Thing.Subscription
+     */
+    onevent( ev :string, func :Function ) :Thing.Subscription{
+      this.client.on('message', (topic, messageBuf) => {
+        let msg = messageBuf.toString();
+        let topicSplit = topic.split('/');
+
+        if ((topicSplit[1] === this.publishName || this.publishName == '+')
+         && topicSplit[4] === ev) {
+          func(topic, msg);
+        }
+      });
+      return this;
+    }
+
+    /**
+     * Listener for ANY event
+     * @param {Function} function
+     * @return Thing.Subscription
+     */
+    on( func :Function ) :Thing.Subscription{
         this.client.on('message', (topic, messageBuf) => {
           let msg = messageBuf.toString();
           let topicSplit = topic.split('/');
+          let publishNameSplit = this.publishName.split('/');
 
-          if (topicSplit[1] === this.publishName
-           && topicSplit[4] === ev) {
-            func(topic, msg);
+          for (let i=1; i<topic.split.length && this.publishName != '+'; i++) {
+            if (topicSplit[i] != publishNameSplit[i-1]) return; 
           }
+
+          func(topic, msg);
         });
+        return this;
     }
   }
 
@@ -83,14 +128,8 @@ export module Thing {
           username : userName,
           password : password
       });
-
-      this.on('connect', ()=>{
-        this.subscribe('$inbox');
-
-      }).on('close', ()=>{
-        this.unsubscribe('$inbox');
-      });
     }
+
 
     /**
      * a Function same with 'this.client.on'
@@ -125,27 +164,19 @@ export module Thing {
 
       let subscription = new Thing.Subscription(this, publishName);
 
-      this.client.subscribe( topic, (err, args) => {
-        // fired on $suback
-        // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
-
-        if (err || args[0].qos > 2)
-          console.log(`subscription "${topic}" failure : ${err}`);
-        else
-          this.DDMQSubscribe( publishName, mkString(payload), callback );
-      } );
+      this.on('connect', () => {
+        this.client.subscribe( topic, (err, args) => {
+          // fired on $suback
+          // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
+          // (args[0].qos is 128 on error)
+          if (err || args[0].qos > 2)
+            console.log(`subscription "${topic}" failure : ${err}`);
+          else
+            this.DDMQSubscribe( publishName, mkString(payload), callback );
+        });
+      });
 
       return subscription;
-    }
-
-    unsubscribe( publishName :string, callback? :Function ) :void{
-      if( typeof publishName !== 'string' )
-        throw new Error( 'publish name should be string!' );
-
-      let thingId = this.thingId;
-      let topic   = `${ thingId }/${ publishName }/#`;
-
-      this.client.unsubscribe( topic, callback )
     }
 
     /**
@@ -164,6 +195,23 @@ export module Thing {
       let topic      = `${ thingId }/$sub/${ publishName }`;
 
       this.client.publish( topic, payload, callback );
+    }
+
+    /**
+     * Function to MQTT unsubscribe
+     *
+     * @param {string} publishName - what this thing is unsubscribing
+     * @param {function} [callback] - callback
+     * @return void
+     */
+    unsubscribe( publishName :string, callback? :Function ) :void{
+      if( typeof publishName !== 'string' )
+        throw new Error( 'publish name should be string!' );
+
+      let thingId = this.thingId;
+      let topic   = `${ thingId }/${ publishName }/#`;
+
+      this.client.unsubscribe( topic, callback )
     }
 
    /**
