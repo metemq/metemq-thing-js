@@ -16,21 +16,44 @@ export module Thing {
 
   /**
    * Class for DDMQ Subscription
+   *
+   * member methods:
+   *   onadded (func :Function)
+   *   onchanged (func :Function)
+   *   onremoved (func :Function)
+   *   onevent (ev :string, func :Function)
    */
-  export class Subscription {
-    topic   :string;
-    payload :string;
+  export class Subscription{
+    client      :Client;
+    publishName :String;
 
-    constructor(){
+    constructor( client :Client, publishName :string ){
+      this.client      = client;
+      this.publishName = publishName;
     }
 
-    onadded() {
+    onadded( func :Function ){
+      this.onevent( 'added', func );
     }
 
-    onchanged() {
+    onchanged( func :Function ){
+      this.onevent( 'changed', func );
     }
 
-    onremoved() {
+    onremoved( func :Function ){
+      this.onevent( 'removed', func );
+    }
+
+    onevent( ev :string, func :Function ){
+        this.client.on('message', (topic, messageBuf) => {
+          let msg = messageBuf.toString();
+          let topicSplit = topic.split('/');
+
+          if (topicSplit[1] === this.publishName
+           && topicSplit[4] === ev) {
+            func(topic, msg);
+          }
+        });
     }
   }
 
@@ -59,6 +82,13 @@ export module Thing {
           clientId : thingId,
           username : userName,
           password : password
+      });
+
+      this.on('connect', ()=>{
+        this.subscribe('$inbox');
+
+      }).on('close', ()=>{
+        this.unsubscribe('$inbox');
       });
     }
 
@@ -93,7 +123,7 @@ export module Thing {
       let thingId = this.thingId;
       let topic   = `${ thingId }/${ publishName }/#`;
 
-      let subscription = new Thing.Subscription();
+      let subscription = new Thing.Subscription(this, publishName);
 
       this.client.subscribe( topic, (err, args) => {
         // fired on $suback
@@ -107,32 +137,16 @@ export module Thing {
 
       return subscription;
     }
-    /*subscribe( publishName :string, optionsOrCallback? :SubscribeTopicOptions,
-        payload? :Array<string>, callback? ) :Thing{
+
+    unsubscribe( publishName :string, callback? :Function ) :void{
       if( typeof publishName !== 'string' )
         throw new Error( 'publish name should be string!' );
-      if( typeof payload === 'function')
-        callback = payload;
-      if( typeof optionsOrCallback === 'function')
-        callback = optionsOrCallback;
-      if( callback && typeof callback !== 'function')
-        throw new Error( 'callback should be function!' );
 
-      let thingId    = this.options.clientId;
-      let collection = optionsOrCallback.collection || "+";
-      let documentId = optionsOrCallback.documentId || "+";
-      let field      = optionsOrCallback.field      || "+";
-      let event      = optionsOrCallback.event      || "+";
+      let thingId = this.thingId;
+      let topic   = `${ thingId }/${ publishName }/#`;
 
-      let topic      = `${ thingId    }/${ publishName }/${ collection }/`
-                     + `${ documentId }/${ field       }/${ event      }`;
-
-      this.client.subscribe( topic, (code) => {
-        this.DDMQSubscribe(publishName, payload, callback );
-      } );
-
-      return this;
-    }*/
+      this.client.unsubscribe( topic, callback )
+    }
 
     /**
      * Function for DDMQ Subscription
@@ -140,7 +154,7 @@ export module Thing {
      * @param {string} publishName - what this thing is subscribing
      * @param {object} [options] - options for subscribing
      * @param {function} [callback] - callback
-     * @return Thing
+     * @return void
      * @example DDMQSubscribeTopic('mPublishName');
      * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
      */
@@ -150,8 +164,6 @@ export module Thing {
       let topic      = `${ thingId }/$sub/${ publishName }`;
 
       this.client.publish( topic, payload, callback );
-
-      console.log('payload: '+payload);
     }
 
    /**
