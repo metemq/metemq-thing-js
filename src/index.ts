@@ -14,12 +14,9 @@ sub.onAny(( msg ) => {
 
 
 // sample code
-let intervalObject;
-if (!intervalObject) {
-  intervalObject = setInterval(sayHello, 1000);
-}
-
 let i = 0;
+let intervalObject = setInterval(sayHello, 1000);
+
 function sayHello() {
    thing.publish(`Hello`, `World! [${i++}]`);
 }

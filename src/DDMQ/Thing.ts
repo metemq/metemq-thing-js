@@ -10,32 +10,45 @@ export class Thing{
   /**
    * Member Variables
    */
-  client   :mqtt.Client;
-
-  thingId  :string;
-  userName :string;
+  thingId    :string;
+  userName   :string;
+  mqttClient :mqtt.Client;
 
   /**
    * Constructor
    */
   constructor( thingId, userName, password, host ){
+    this.initialize( thingId, userName, password, host );
+    this.setDefaultListener();
+  }
 
+  /**
+   * Function for initialize thing's ID, Username, and MQTT Client
+   */
+  private initialize( thingId, userName, password, host ){
     this.thingId  = thingId;
     this.userName = userName;
 
-    this.client = mqtt.connect( host, {
-        clientId : thingId,
-        username : userName,
-        password : password
+    this.mqttClient = mqtt.connect( host, {
+      clientId : thingId,
+      username : userName,
+      password : password
     });
   }
 
   /**
-   * a Function same with 'this.client.on'
+   * Function for handle default topics
+   */
+  private setDefaultListener( ){
+    //TODO sub $inbox
+  }
+
+  /**
+   * Function same with 'this.mqttClient.on'
    * @return Thing
    */
   on( event :string, listener :Function ) :Thing{
-    this.client.on( event, listener );
+    this.mqttClient.on( event, listener );
     return this;
   }
 
@@ -62,13 +75,13 @@ export class Thing{
 
     let subscription = new Subscription(this, publishName);
 
-    this.on('connect', () => {
-      this.client.subscribe( topic, (err, args) => {
+    this.on('connect', ( ) => {
+      this.mqttClient.subscribe( topic, (err, args) => {
         // fired on $suback
         // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
         // (args[0].qos is 128 on error)
         if (err || args[0].qos > 2){
-          console.log(`subscription "${topic}" failure : ${err}`);
+          console.log( `subscription "${topic}" failure : ${err}` );
         }else{
           this.DDMQSubscribe( publishName, mkString(payload), callback );
         }
@@ -88,12 +101,12 @@ export class Thing{
    * @example DDMQSubscribeTopic('mPublishName');
    * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
    */
-  private DDMQSubscribe( publishName :string, payload: string, callback? ) {
+  private DDMQSubscribe( publishName :string, payload: string, callback? ){
 
     let thingId    = this.thingId;
     let topic      = `${ thingId }/$sub/${ publishName }`;
 
-    this.client.publish( topic, payload, callback );
+    this.mqttClient.publish( topic, payload, callback );
   }
 
   /**
@@ -110,7 +123,7 @@ export class Thing{
     let thingId = this.thingId;
     let topic   = `${ thingId }/${ publishName }/#`;
 
-    this.client.unsubscribe( topic, callback )
+    this.mqttClient.unsubscribe( topic, callback )
   }
 
  /**
@@ -121,8 +134,8 @@ export class Thing{
   * @return Thing
   * @example publish(`Hello`, `World! [${i++}]`);
   */
-  publish(publishName :string, payload :string, callback? :Function) :Thing{
-    this.client.publish(`${this.thingId}/${publishName}`, `${payload}`, callback);
+  publish(publishName :string, payload :string, callback? :Function ) :Thing{
+    this.mqttClient.publish( `${this.thingId}/${publishName}`, `${payload}`, callback );
 
     return this;
   }
