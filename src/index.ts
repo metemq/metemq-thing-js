@@ -1,4 +1,3 @@
-
 import { THING_ID, USER_NAME, PASSWORD, HOST } from './config';
 import { Thing } from './DDMQ/Thing';
 
@@ -14,7 +13,9 @@ function sayHello() {
    thing.publish(`Hello`, `World! [${i++}]`);
 }
 
-let sub = thing.subscribe("$inbox/Hi", 1, 2, 4);
+let sub = thing.subscribe("$inbox", 1, 2, 4);
+
+// handle on any event
 sub.on((topic, msg) => {
   console.log(`received - ${topic}: ${msg}`);
 });

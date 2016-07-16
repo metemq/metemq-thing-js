@@ -90,13 +90,20 @@ export module Thing {
         this.client.on('message', (topic, messageBuf) => {
           let msg = messageBuf.toString();
           let topicSplit = topic.split('/');
+          /*
           let publishNameSplit = this.publishName.split('/');
 
-          for (let i=1; i<topic.split.length && this.publishName != '+'; i++) {
-            if (topicSplit[i] != publishNameSplit[i-1]) return; 
+          for ( let i=1; i<topic.split.length && this.publishName != '+'; i++ ) {
+            if ( topicSplit[i] != '+' && publishNameSplit[i-1] != '+'
+              && topicSplit[i] != publishNameSplit[i-1] ) return;
           }
+          */
 
-          func(topic, msg);
+          if ( topicSplit[1] === this.publishName
+            || this.publishName === '+') {
+
+            func(topic, msg);
+          }
         });
         return this;
     }
