@@ -1,33 +1,22 @@
-import * as mqtt from 'mqtt';
-import {THING_ID, USER_NAME, PASSWORD, HOST} from './config';
+import { THING_ID, USER_NAME, PASSWORD, HOST } from './config';
+import { Thing } from './DDMQ/Thing';
 
-const options: mqtt.ClientOptions = {
-    clientId: THING_ID,
-    username: USER_NAME,
-    password: PASSWORD
-}
+// initialize thing-js
+let thing = new Thing (THING_ID, USER_NAME, PASSWORD, HOST);
 
-const client = mqtt.connect(HOST, options);
+// subscribe
+let sub = thing.subscribe('$inbox', 1, 2, 4);
 
-let intervalObject;
-
-client.on('connect', function() {
-    client.subscribe(`${THING_ID}/$inbox/#`);
-
-    sayHello();
-    intervalObject = setInterval(sayHello, 1000);
+// handle on any event
+sub.onAny(( msg ) => {
+  console.log(`received - ${ msg }`);
 });
 
-client.on('message', function(topic, messageBuf) {
-    let msg = messageBuf.toString()
-    console.log(`${topic}: ${msg}`);
-});
 
-client.on('close', () => {
-    if (intervalObject) clearInterval(intervalObject);
-})
-
+// sample code
 let i = 0;
+let intervalObject = setInterval(sayHello, 1000);
+
 function sayHello() {
-    client.publish(`${THING_ID}/Hello`, `World! [${i++}]`);
+   thing.publish(`Hello`, `World! [${i++}]`);
 }
