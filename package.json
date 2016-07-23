@@ -2,9 +2,12 @@
   "name": "metemq-thing-js",
   "version": "0.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "build/app/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest": "tsc",
+    "test": "mocha build/test",
+    "prestart": "tsc",
+    "start": "node ."
   },
   "repository": {
     "type": "git",
@@ -12,13 +15,17 @@
   },
   "author": "",
   "license": "MIT",
-  "devDependencies": {
-    "gulp-nodemon": "^2.1.0",
-    "typescript": "^1.8.10",
-    "gulp": "^3.9.1",
-    "gulp-typescript": "^2.13.6"
-  },
   "dependencies": {
-    "mqtt": "^1.12.0"
+    "mqtt": "^1.12.0",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^2.2.0",
+    "gulp-nodemon": "^2.1.0",
+    "gulp-typescript": "^2.13.6",
+    "gulp-util": "^3.0.7",
+    "typescript": "^1.8.10"
   }
 }

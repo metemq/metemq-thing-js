@@ -4,7 +4,7 @@
         "target": "es5",
         "noImplicitAny": false,
         "sourceMap": false,
-        "outDir": "./dist",
+        "outDir": "./build",
         "rootDir": "./src",
         "moduleResolution": "node"
     },
@@ -17,11 +17,12 @@
     ],
     "compileOnSave": true,
     "files": [
-        "src/config.ts",
-        "src/DDMQ/Subscription.ts",
-        "src/DDMQ/Thing.ts",
-        "src/DDMQ/utils.ts",
-        "src/index.ts",
+        "src/app/config.ts",
+        "src/app/DDMQ/Subscription.ts",
+        "src/app/DDMQ/Thing.ts",
+        "src/app/DDMQ/utils.ts",
+        "src/app/index.ts",
+        "src/test/test.ts",
         "typings/index.d.ts"
     ],
     "atom": {
