@@ -20,6 +20,7 @@
         "src/config.ts",
         "src/DDMQ/Subscription.ts",
         "src/DDMQ/Thing.ts",
+        "src/DDMQ/ThingUtils.ts",
         "src/DDMQ/utils.ts",
         "src/index.ts",
         "typings/index.d.ts"
