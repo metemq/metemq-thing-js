@@ -149,8 +149,9 @@ export class Thing {
      *
      * @param {string} method
      * @param {...object} [optionsOrCallback] - options for method or callback
+     * @return Thing
      */
-    call(method, ...payload){
+    call(method, ...payload): Thing{
         let thingId = this.thingId;
         let msgId = genMsgId(8);
 
@@ -161,6 +162,8 @@ export class Thing {
         let topic = `${thingId}/$call/${method}/${msgId}`;
 
         this.mqttClient.publish (topic, mkString(payload), callback)
+
+        return this;
     }
 
 }
