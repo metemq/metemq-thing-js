@@ -17,7 +17,6 @@
     ],
     "compileOnSave": true,
     "files": [
-<<<<<<< HEAD
         "src/app/config.ts",
         "src/app/DDMQ/Subscription.ts",
         "src/app/DDMQ/Thing.ts",
@@ -25,14 +24,6 @@
         "src/app/DDMQ/utils.ts",
         "src/app/index.ts",
         "src/test/test.ts",
-=======
-        "src/config.ts",
-        "src/DDMQ/Subscription.ts",
-        "src/DDMQ/Thing.ts",
-        "src/DDMQ/ThingUtils.ts",
-        "src/DDMQ/utils.ts",
-        "src/index.ts",
->>>>>>> fbb9c1ec7a56183364e351b18859c2d929e0048d
         "typings/index.d.ts"
     ],
     "atom": {

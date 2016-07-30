@@ -19,7 +19,7 @@ gulp.task('build', function() {
     return tsResult.js.pipe(gulp.dest(outDir));
 });
 
-gulp.task('run', ['build'], function() {
+gulp.task('run', ['watch'], function() {
     var stream = nodemon({
         script: 'build/app', // run ES5 code
         ext: 'ts',
