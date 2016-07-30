@@ -175,7 +175,7 @@ export class Thing {
      * @param {function} [callback]
      * @return Thing
      */
-    bind(field: string, value, callback: Function): Thing{
+    bind(field: string, value, callback?: Function): Thing{
         let thingId = this.thingId;
         let topic = `${thingId}/$bind/${field}`;
 
