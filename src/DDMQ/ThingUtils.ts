@@ -1,7 +1,8 @@
 /**
  * Generate a random Message-ID
+ * (default value of len: 8)
  */
-export function genMsgId(len?): string {
+export function genMsgId(len?: number): string {
   let a = "";
   len = len || 8;
 
@@ -12,14 +13,14 @@ export function genMsgId(len?): string {
 }
 
 /**
- * Generate a random Character (0-9, a-z, A-Z)
+ * Generate a random Character (0~9, a~z, A~Z)
  */
 function genChar(): string {
   let a = Math.floor(Math.random()*62);
 
-  if (a<10) a+=48; // 0-9 => 48-57 ('0'-'9')
-  else if (a<36) a+=55; // 10-35 => 65-90 ('A'-'Z')
-  else a+=61; // 36-61 => 97-122 ('a'-'z')
+  if      (a<10) a +=48; // 0 ~ 9 => 48~57  ('0'~'9')
+  else if (a<36) a +=55; // 10~35 => 65~90  ('A'~'Z')
+  else           a +=61; // 36~61 => 97~122 ('a'~'z')
 
   return String.fromCharCode(a);
 }
