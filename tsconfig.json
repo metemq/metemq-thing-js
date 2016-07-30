@@ -20,6 +20,7 @@
         "src/app/config.ts",
         "src/app/DDMQ/Subscription.ts",
         "src/app/DDMQ/Thing.ts",
+        "src/app/DDMQ/ThingUtils.ts",
         "src/app/DDMQ/utils.ts",
         "src/app/index.ts",
         "src/test/test.ts",
