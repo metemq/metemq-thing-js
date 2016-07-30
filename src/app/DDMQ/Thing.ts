@@ -146,6 +146,7 @@ export class Thing {
 
     /**
      * Method Call
+     * (MeteMQ Remote Procedure Call)
      *
      * @param {string} method
      * @param {...object} [optionsOrCallback] - options for method or callback
@@ -161,7 +162,7 @@ export class Thing {
 
         let topic = `${thingId}/$call/${method}/${msgId}`;
 
-        this.mqttClient.publish (topic, mkString(payload), callback)
+        this.mqttClient.publish (topic, mkString(payload), callback);
 
         return this;
     }
