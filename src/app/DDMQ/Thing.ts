@@ -167,4 +167,21 @@ export class Thing {
         return this;
     }
 
+    /**
+     * 4-Way data binding
+     *
+     * @param {string} field
+     * @param {object} value
+     * @param {function} [callback]
+     * @return Thing
+     */
+    bind(field: string, value, callback: Function): Thing{
+        let thingId = this.thingId;
+        let topic = `${thingId}/$bind/${field}`;
+
+        this.mqttClient.publish (topic, value, callback);
+
+        return this;
+    }
+
 }
