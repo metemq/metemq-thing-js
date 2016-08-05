@@ -3,25 +3,26 @@
         "module": "commonjs",
         "target": "es5",
         "noImplicitAny": false,
-        "sourceMap": false,
+        "sourceMap": true,
         "outDir": "./build",
         "rootDir": "./src",
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "declaration": true
     },
     "exclude": [
         "node_modules"
     ],
     "filesGlob": [
         "src/**/*.ts",
-        "typings/index.d.ts"
+        "typings/**/*.d.ts"
     ],
     "compileOnSave": true,
     "files": [
-        "src/app/config.ts",
-        "src/app/DDMQ/Subscription.ts",
-        "src/app/DDMQ/Thing.ts",
-        "src/app/DDMQ/utils.ts",
         "src/app/index.ts",
+        "src/app/Subscription.ts",
+        "src/app/Thing.ts",
+        "src/app/ThingUtils.ts",
+        "src/app/utils.ts",
         "src/test/test.ts",
         "typings/index.d.ts"
     ],

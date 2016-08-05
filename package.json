@@ -6,9 +6,9 @@
   "scripts": {
     "pretest": "tsc",
     "test": "mocha build/test",
-    "prestart": "tsc",
-    "start": "node ."
+    "prepublish": "tsc"
   },
+  "typings": "build/app/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git@gitlab.com:metemq/metemq-thing-js.git"
