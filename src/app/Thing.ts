@@ -1,7 +1,9 @@
 import * as mqtt from 'mqtt';
+import _ = require('underscore');
 import { mkString } from './utils';
 import { genMsgId } from './ThingUtils';
 import { Subscription, SubscribeTopicOptions } from './Subscription';
+import { ThingOptions, DEFAULT_THING_OPTIONS } from './thingOptions';
 
 /**
  * Thing class
@@ -12,27 +14,31 @@ export class Thing {
      * Member Variables
      */
     thingId: string;
-    userName: string;
+    username: string;
     mqttClient: mqtt.Client;
 
     /**
      * Constructor
      */
-    constructor(thingId, userName, password, host) {
-        this.initialize(thingId, userName, password, host);
+    constructor(thingId: string, options?: ThingOptions) {
+        if (typeof thingId !== 'string')
+            throw new Error('Type of thingId should be string');
+
+        options = _.extend(DEFAULT_THING_OPTIONS, options);
+        this.initialize(thingId, options);
     }
 
     /**
      * Function for initialize thing's ID, Username, and MQTT Client
      */
-    private initialize(thingId, userName, password, host) {
+    private initialize(thingId, options: ThingOptions) {
         this.thingId = thingId;
-        this.userName = userName;
+        this.username = options.username;
 
-        this.mqttClient = mqtt.connect(host, {
+        this.mqttClient = mqtt.connect(options.url, {
             clientId: thingId,
-            username: userName,
-            password: password
+            username: options.username,
+            password: options.password
         });
 
         this.setDefaultListener();
@@ -152,7 +158,7 @@ export class Thing {
      * @param {...object} [optionsOrCallback] - options for method or callback
      * @return Thing
      */
-    call(method, ...payload): Thing{
+    call(method, ...payload): Thing {
         let thingId = this.thingId;
         let msgId = genMsgId(8);
 
@@ -162,7 +168,7 @@ export class Thing {
 
         let topic = `${thingId}/$call/${method}/${msgId}`;
 
-        this.mqttClient.publish (topic, mkString(payload), callback);
+        this.mqttClient.publish(topic, mkString(payload), callback);
 
         return this;
     }
@@ -175,11 +181,11 @@ export class Thing {
      * @param {function} [callback]
      * @return Thing
      */
-    bind(field: string, value, callback?: Function): Thing{
+    bind(field: string, value, callback?: Function): Thing {
         let thingId = this.thingId;
         let topic = `${thingId}/$bind/${field}`;
 
-        this.mqttClient.publish (topic, value, callback);
+        this.mqttClient.publish(topic, value, callback);
 
         return this;
     }

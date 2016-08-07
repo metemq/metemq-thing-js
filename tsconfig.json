@@ -12,18 +12,25 @@
     "exclude": [
         "node_modules"
     ],
-    "filesGlob": [
-        "src/**/*.ts",
-        "typings/**/*.d.ts"
+    "include": [
+        "src/**/*",
+        "typings/**/*"
     ],
     "compileOnSave": true,
     "files": [
         "src/app/index.ts",
         "src/app/Subscription.ts",
         "src/app/Thing.ts",
+        "src/app/thingOptions.ts",
         "src/app/ThingUtils.ts",
         "src/app/utils.ts",
         "src/test/test.ts",
+        "typings/globals/chai/index.d.ts",
+        "typings/globals/gulp-mocha/index.d.ts",
+        "typings/globals/mocha/index.d.ts",
+        "typings/globals/mqtt/index.d.ts",
+        "typings/globals/node/index.d.ts",
+        "typings/globals/underscore/index.d.ts",
         "typings/index.d.ts"
     ],
     "atom": {
