@@ -1,6 +1,6 @@
 {
   "name": "metemq-thing-js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Thing JS of MeteMQ",
   "main": "build/app/index.js",
   "scripts": {
