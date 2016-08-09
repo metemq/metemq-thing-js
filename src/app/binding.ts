@@ -11,7 +11,7 @@ export class Binding {
 
     }
 
-    update(...args) {
+    set(...args) {
         args.push(this.sendBindMsg);
         const value = this.setFunction.apply(this, args);
 
