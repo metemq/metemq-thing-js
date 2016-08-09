@@ -1,9 +1,10 @@
-import * as mqtt from 'mqtt';
+import mqtt = require('mqtt');
 import _ = require('underscore');
-import { mkString } from './utils';
-import { genMsgId } from './ThingUtils';
+import MqttEmitter = require('mqtt-emitter');
+import { mkString, parseValue, genMsgId } from './utils';
 import { Subscription, SubscribeTopicOptions } from './Subscription';
 import { ThingOptions, DEFAULT_THING_OPTIONS } from './thingOptions';
+import { Binding } from './binding';
 
 /**
  * Thing class
@@ -13,9 +14,10 @@ export class Thing {
     /**
      * Member Variables
      */
-    thingId: string;
+    id: string;
     username: string;
     mqttClient: mqtt.Client;
+    mqttEmitter = new MqttEmitter();
 
     /**
      * Constructor
@@ -32,7 +34,7 @@ export class Thing {
      * Function for initialize thing's ID, Username, and MQTT Client
      */
     private initialize(thingId, options: ThingOptions) {
-        this.thingId = thingId;
+        this.id = thingId;
         this.username = options.username;
 
         this.mqttClient = mqtt.connect(options.url, {
@@ -42,13 +44,19 @@ export class Thing {
         });
 
         this.setDefaultListener();
+
+        this.mqttClient.on('message', (topic, messageBuf) => {
+            const payload = messageBuf.toString();
+            this.mqttEmitter.emit(topic, payload);
+        });
     }
 
     /**
      * Function for handle default topics
      */
     private setDefaultListener() {
-        //TODO sub $inbox
+        this.mqttClient.subscribe(`${this.id}/$suback/#`);
+        this.mqttClient.subscribe(`${this.id}/$callack/#`);
     }
 
     /**
@@ -71,34 +79,35 @@ export class Thing {
      * @example subscribeTopic('mPublishName');
      * @example subscribeTopic('mPublishName', { event: 'added' });
      */
-    subscribe(publishName: string, ...payload: any[]): Subscription {
-        if (typeof publishName !== 'string')
+    subscribe(name: string, ...args: any[]): Subscription {
+        if (typeof name !== 'string')
             throw new Error('publish name should be string!');
 
-        let callback = null;
-        if (payload && payload.length > 0 && typeof payload[payload.length - 1] == 'function')
-            callback = payload.pop();
+        let callback;
+        if (args && args.length > 0 && typeof args[args.length - 1] == 'function')
+            callback = args.pop();
 
-        let thingId = this.thingId;
-        let topic = `${thingId}/${publishName}/#`;
-
-        let subscription = new Subscription(this, publishName);
-
+        // MQTT subscribe, and then DDMQ subscribe
+        this.twoPhaseSubscribe(name, args, callback);
         // after reconnection, it needs to request supscription again
-        this.on('connect', () => {
-            this.mqttClient.subscribe(topic, (err, args) => {
-                // fired on $suback
-                // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
-                // (args[0].qos is 128 on error)
-                if (err || args[0].qos > 2) {
-                    console.log(`subscription "${topic}" failure : ${err}`);
-                } else {
-                    this.DDMQSubscribe(publishName, mkString(payload), callback);
-                }
-            });
-        });
+        this.on('reconnect', () => this.twoPhaseSubscribe(name, args, callback));
 
-        return subscription;
+        return new Subscription(this, name);
+    }
+
+    private twoPhaseSubscribe(name, params: any[], callback?: Function) {
+        this.mqttSubscribe(name, () => this.ddmqSubscribe(name, params, callback));
+    }
+
+    private mqttSubscribe(name: string, callback?: Function) {
+        this.mqttClient.subscribe(`${this.id}/${name}/#`, (err, granted) => {
+            // fired on MQTT suback
+            // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
+            // (args[0].qos is 128 on error)
+            if (err || granted[0].qos > 2)
+                throw new Error(`Subscription "${name}" fail: MQTT subscription fail`);
+            if (typeof callback === 'function') callback();
+        });
     }
 
     /**
@@ -111,12 +120,14 @@ export class Thing {
      * @example DDMQSubscribeTopic('mPublishName');
      * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
      */
-    private DDMQSubscribe(publishName: string, payload: string, callback?) {
+    private ddmqSubscribe(name: string, params: any[], callback?: Function) {
+        this.mqttClient.publish(`${this.id}/$sub/${name}`, mkString(params));
 
-        let thingId = this.thingId;
-        let topic = `${thingId}/$sub/${publishName}`;
-
-        this.mqttClient.publish(topic, payload, callback);
+        this.mqttEmitter.once(`${this.id}/$suback/${name}`, (payload) => {
+            const code = Number(payload);
+            if (code) throw new Error('Subscription refused');
+            if (typeof callback === 'function') callback();
+        });
     }
 
     /**
@@ -126,28 +137,13 @@ export class Thing {
      * @param {function} [callback] - callback
      * @return void
      */
-    unsubscribe(publishName: string, callback?: Function): void {
-        if (typeof publishName !== 'string')
+    unsubscribe(name: string, callback?: Function): void {
+        if (typeof name !== 'string')
             throw new Error('publish name should be string!');
 
-        let thingId = this.thingId;
-        let topic = `${thingId}/${publishName}/#`;
+        let topic = `${this.id}/${name}/#`;
 
         this.mqttClient.unsubscribe(topic, callback)
-    }
-
-    /**
-     * Function for MQTT publication
-     *
-     * @param {string} publishName - what this thing is publishing
-     * @param {string} payload - publication payload
-     * @return Thing
-     * @example publish(`Hello`, `World! [${i++}]`);
-     */
-    publish(publishName: string, payload: string, callback?: Function): Thing {
-        this.mqttClient.publish(`${this.thingId}/${publishName}`, `${payload}`, callback);
-
-        return this;
     }
 
     /**
@@ -156,23 +152,26 @@ export class Thing {
      *
      * @param {string} method
      * @param {...object} [optionsOrCallback] - options for method or callback
-     * @return Thing
+     * @return
      */
-    call(method, ...payload): Thing {
-        let thingId = this.thingId;
-        let msgId = genMsgId(8);
+    call(method, ...args) {
+        const msgId = genMsgId(8);
 
-        let callback = null;
-        if (payload && payload.length > 0 && typeof payload[payload.length - 1] == 'function')
-            callback = payload.pop();
+        let callback;
+        if (args && args.length > 0 && typeof args[args.length - 1] == 'function')
+            callback = args.pop();
 
-        let topic = `${thingId}/$call/${method}/${msgId}`;
+        this.mqttClient.publish(`${this.id}/$call/${method}/${msgId}`, mkString(args));
 
-        this.mqttClient.publish(topic, mkString(payload), callback);
-
-        return this;
+        this.mqttEmitter.once(`${this.id}/$callack/${msgId}/+code`, (payload, params) => {
+            const code = Number(params.code);
+            if (code)
+                throw new Error(`Method ${method} call refused: error code [${params.code[0]}]`);
+            if (typeof callback === 'function')
+                callback(parseValue(payload));
+        });
     }
-
+    
     /**
      * 4-Way data binding
      *
@@ -181,13 +180,8 @@ export class Thing {
      * @param {function} [callback]
      * @return Thing
      */
-    bind(field: string, value, callback?: Function): Thing {
-        let thingId = this.thingId;
-        let topic = `${thingId}/$bind/${field}`;
-
-        this.mqttClient.publish(topic, value, callback);
-
-        return this;
+    bind(field: string, updateFunction?: Function): Binding {
+        if (!updateFunction) updateFunction = (value) => { return value; };
+        return new Binding(field, updateFunction, this);
     }
-
 }

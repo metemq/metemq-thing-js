@@ -22,12 +22,12 @@ export interface SubscribeTopicOptions {
  *   onEvent (ev :string, func :Function)
  */
 export class Subscription {
-    client: Thing;
-    publishName: String;
 
-    constructor(client: Thing, publishName: string) {
-        this.client = client;
-        this.publishName = publishName;
+    constructor(
+        private thing: Thing,
+        private publishName: string
+    ) {
+
     }
 
     /**
@@ -68,7 +68,7 @@ export class Subscription {
      * @return Subscription
      */
     onEvent(ev: string, func: Function): Subscription {
-        this.client.on('message', (topic, messageBuf) => {
+        this.thing.on('message', (topic, messageBuf) => {
             let msg = messageBuf.toString();
             let topicSplit = topic.split('/');
 
@@ -88,7 +88,7 @@ export class Subscription {
      * @return Subscription
      */
     onAny(func: Function): Subscription {
-        this.client.on('message', (topic, messageBuf) => {
+        this.thing.on('message', (topic, messageBuf) => {
             let msg = messageBuf.toString();
             let topicSplit = topic.split('/');
 
