@@ -61,6 +61,19 @@ export class Subscription {
         return this;
     }
 
+    on(handlers: { added?: Function, changed?: Function, removed?: Function }): Subscription {
+        if (typeof handlers.added === 'function')
+            this.onAdded(handlers.added);
+
+        if (typeof handlers.changed === 'function')
+            this.onChanged(handlers.changed);
+
+        if (typeof handlers.removed === 'function')
+            this.onRemoved(handlers.removed);
+
+        return this;
+    }
+
     /**
      * Listener for Added event
      * @param {string} ev
