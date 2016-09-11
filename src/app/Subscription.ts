@@ -62,7 +62,7 @@ export class Subscription {
     }
 
     /**
-     * Listener for Added event
+     * Listener for event
      * @param {string} ev
      * @param {Function} func
      * @return Subscription
