@@ -197,6 +197,8 @@ export class Thing {
    * usage:
    *   let act = thing.action(actName);
    *   act.set(actFunc);
+   * or
+   *   let act = thing.action(actName, actFunc);
    */
   action(actionName: string, action?: Function): Action {
     // if (this.actionList[actionName])
