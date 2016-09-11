@@ -194,6 +194,9 @@ export class Thing {
    * Set Action Function
    *
    * A Job what Client requests to Thing
+   * usage:
+   *   let act = thing.action(actName);
+   *   act.set(actFunc);
    */
   action(actionName: string, action?: Function): Action {
     // if (this.actionList[actionName])
