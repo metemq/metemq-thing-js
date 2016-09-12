@@ -195,17 +195,15 @@ export class Thing {
    *
    * A Job what Client requests to Thing
    * usage:
-   *   let act = thing.action(actName);
-   *   act.set(actFunc);
-   * or
-   *   let act = thing.action(actName, actFunc);
+   *   thing.action({
+   *     sayHi() { console.log("Hi!") }
+   *   });
    */
-  action(actionName: string, action?: Function): Action {
-    // if (this.actionList[actionName])
-      // throw new Error('This action is already registered');
-
-    // submit the action
-    return this.actionManager.submitAction(actionName, action);
+  action(actions: { [action: string]: Function }) {
+    for(const actionName in actions) {
+      const action = actions[actionName];
+      this.actionManager.submitAction(actionName, action);
+    }
   }
 
   private actionSubscribe() {
