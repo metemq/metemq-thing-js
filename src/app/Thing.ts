@@ -199,7 +199,7 @@ export class Thing {
    *     sayHi() { console.log("Hi!") }
    *   });
    */
-  action(actions: { [action: string]: Function }) {
+  actions(actions: { [action: string]: Function }) {
     for(const actionName in actions) {
       const action = actions[actionName];
       this.actionManager.submitAction(actionName, action);
