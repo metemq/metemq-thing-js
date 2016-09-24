@@ -1,7 +1,7 @@
 {
   "name": "metemq-thing-js",
-  "version": "0.1.2",
-  "description": "Thing JS of MeteMQ",
+  "version": "0.2.0",
+  "description": "MeteMQ Thing for JavaScript",
   "main": "build/app/index.js",
   "scripts": {
     "pretest": "tsc",

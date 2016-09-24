@@ -11,19 +11,32 @@ npm i --save metemq-thing-js
 
 ```js
 var Thing = require('metemq-thing-js').Thing;
-var thing = new Thing('myFirstThing');
+var thing = new Thing('MY_FIRST_METEMQ_THING_JS');
 
 var sub = thing.subscribe('demo')
-sub.onAdded(function(name, age) {
-    console.log(`${name}(${age})`);
+
+sub.on({
+    added(name, age) {
+        console.log(`${name}(${age})`);
+    }
 });
 
-thing.call('hello', function(value) {
-    console.log(value)
+thing.call('hello', function(result) {
+    console.log(`hello ${result}!`);
 });
 
 const temp = thing.bind('temp');
-temp.set(30);
+
+setInterval(function() {
+    temp.set(Math.random());
+}, 2000);
+
+thing.actions({
+  print(c, ...args){
+    console.log(`message from server: ${args}`);
+    c.done();
+  }
+})
 ```
 
 # How to test?

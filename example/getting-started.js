@@ -19,7 +19,6 @@ setInterval(function() {
     temp.set(Math.random());
 }, 2000);
 
-
 thing.actions({
   print(c, ...args){
     console.log(`message from server: ${args}`);
