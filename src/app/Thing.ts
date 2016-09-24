@@ -20,7 +20,7 @@ export class Thing {
     mqttClient: mqtt.Client;
     mqttEmitter = new MqttEmitter();
 
-    private actionManager: ActionManager;
+    private actionManager: ActionManager = new ActionManager(this);
 
     /**
      * Constructor
@@ -59,9 +59,9 @@ export class Thing {
      *   });
      */
     actions(actions: { [action: string]: Function }) {
-        for (const actionName in actions) {
-            const action = actions[actionName];
-            this.actionManager.submitAction(actionName, action);
+        for (const name in actions) {
+            const action = actions[name];
+            this.actionManager.submitAction(name, action);
         }
     }
 
@@ -92,6 +92,8 @@ export class Thing {
     private setDefaultListener() {
         this.mqttClient.subscribe(`${this.id}/$suback/#`);
         this.mqttClient.subscribe(`${this.id}/$callack/#`);
+
+        this.mqttClient.on('connect', () => this.actionSubscribe());
     }
 
     /**
@@ -166,15 +168,9 @@ export class Thing {
     }
 
     private actionSubscribe() {
-        this.mqttEmitter.on(`${this.id}/$inbox/#`, (payload, params) => {
-            payload = parseJSON(payload);
-
-            let msgId = payload[0];
-            let actionName = payload[1];
-            let value = parseJSON(payload[2]);
-
-            this.actionManager.actionCall(actionName, msgId, value);
-        });
+        const sub = this.subscribe('$inbox');
+        sub.onAdded((msgId, name, params) =>
+            this.actionManager.actionCall(msgId, name, params));
     }
 
     /**

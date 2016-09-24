@@ -6,39 +6,15 @@ import { Message } from './message';
  */
 export class Action {
 
-  private actionFunction: Function;
+    constructor(
+        private name: string,
+        private action: Function
+    ) { }
 
-  constructor(
-      private actionName: string,
-      private thing: Thing
-  ) {
-    this.actionFunction = ()=>null;
-  }
-
-  set(updateFunction: Function) {
-    this.actionFunction = updateFunction;
-  }
-
-  unset() {
-    this.actionFunction = ()=>null;
-  }
-
-  getActionName(): string{
-    return this.actionName;
-  }
-
-  setActionName(name): string{
-    this.actionName = name;
-    return this.actionName;
-  }
-
-  getActionFunction(): Function {
-    return this.actionFunction;
-  }
-
-  doAction(msg, ...args) {
-    this.actionFunction(msg.controller, args);
-  }
+    run(msg: Message, params: any[]) {
+        const args = [msg.controller].concat(params);
+        this.action.apply(null, args);
+    }
 }
 
 /**
@@ -47,51 +23,34 @@ export class Action {
  */
 export class ActionManager {
 
-  actions: Array<Action>;
-  messages: Array<Message>;
+    actions: { [name: string]: Action } = {};
+    messages: { [msgId: string]: Message } = {};
 
-  constructor(
-      public thing: Thing
-  ) {
-    this.actions = [];
-    this.messages = [];
-  }
+    constructor(
+        public thing: Thing
+    ) { }
 
-  submitAction(actionName: string, actionFunction?: Function): Action {
-    let newAction = new Action(actionName, this.thing);
-
-    if (actionFunction) newAction.set(actionFunction);
-
-    this.actions.push( newAction );
-    return newAction;
-  }
-
-  actionCall (actionName, msgId, ...args) {
-
-    let progress = 0;
-    let i = 0;
-
-    let msg = new Message(msgId, this);
-
-    // /metemq/pending
-    // param: msgId, thingId, progress
-    // return 'reject' or 'done'
-    if (this.messages[msgId]) {
-      msg.rejected();
-    }
-    this.messages[msgId] = msg;
-
-    // do action
-    for (i = 0; i < this.actions.length; i++) {
-        if ( this.actions[i].getActionName === actionName ) {
-            msg.pending();
-            this.actions[i].doAction(msg, args);
-            break;
-        }
+    submitAction(name: string, action: Function): void {
+        this.actions[name] = new Action(name, action);
     }
 
-    // not submited action
-    if (i >= this.actions.length)
-      msg.rejected();
-  }
+    actionCall(msgId: string, name: string, params: any[]) {
+        const progress = 0;
+        const msg = new Message(msgId, this);
+
+        // Check message duplication
+        if (this.messages[msgId]) return; /* XXX Is this needed? */
+
+        // Reject if there is no such action
+        if (!this.actions[name]) return msg.rejected();
+
+        // Insert message
+        this.messages[msgId] = msg;
+
+        // Send pending message
+        msg.pending();
+
+        // Run action
+        this.actions[name].run(msg, params);
+    }
 }

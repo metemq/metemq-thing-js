@@ -6,42 +6,36 @@ import { ActionManager } from './action';
  */
 export class Message {
 
-  thing: Thing;
-  controller: MessageController;
+    thing: Thing;
+    controller: MessageController;
 
-  constructor(
-    public msgId,
-    public actionManager: ActionManager
-  ) {
-    this.thing = actionManager.thing;
-    this.controller = new MessageController(this);
-  }
+    constructor(
+        public msgId: string,
+        public actionManager: ActionManager
+    ) {
+        this.thing = actionManager.thing;
+        this.controller = new MessageController(this);
+    }
 
-  pending(percentage?) {
-    if (! this.actionManager.messages[this.msgId]) return;
-    
-    percentage = percentage || 0;
-    this.specialMethod("pending", this.msgId, this.thing.id, percentage);
-  }
+    pending(percentage?) {
+        percentage = percentage || 0;
+        this.specialMethod("pending", this.msgId, percentage);
+    }
 
-  applied() {
-    if (! this.actionManager.messages[this.msgId]) return;
+    applied(result: any[]) {
+        this.specialMethod.apply(this, ['applied', this.msgId].concat(result));
+        delete this.actionManager.messages[this.msgId];
+    }
 
-    this.specialMethod("applied", this.msgId, this.thing.id );
-    this.actionManager.messages[this.msgId] = null;
-  }
+    rejected() {
+        this.specialMethod("rejected", this.msgId);
+        delete this.actionManager.messages[this.msgId];
+    }
 
-  rejected() {
-    if (! this.actionManager.messages[this.msgId]) return;
-
-    this.specialMethod("rejected", this.msgId, this.thing.id );
-    this.actionManager.messages[this.msgId] = null;
-  }
-
-  private specialMethod(state, ...args) {
-    let method = `_metemq_${state}`;
-    this.thing.call(method, args);
-  }
+    private specialMethod(state, ...args) {
+        const method = `_metemq_${state}`;
+        this.thing.call.apply(this.thing, [method].concat(args));
+    }
 }
 
 /**
@@ -49,24 +43,24 @@ export class Message {
  */
 export class MessageController {
 
-  private inProgress: boolean;
+    private inProgress: boolean;
 
-  constructor(
-    public message: Message
-  ) {
-    this.inProgress = true;
-  }
-
-  done() {
-    if (this.inProgress) {
-      this.inProgress = false;
-      this.message.applied();
+    constructor(
+        public message: Message
+    ) {
+        this.inProgress = true;
     }
-  }
 
-  progress(percentage: number) {
-    if (! this.inProgress) return;
-    if (percentage >= 100) return;
-    this.message.pending(percentage);
-  }
+    done(...result: any[]) {
+        if (this.inProgress) {
+            this.inProgress = false;
+            this.message.applied(result);
+        } else throw new Error('You cannot call done() twice');
+    }
+
+    progress(percentage: number) {
+        if (!this.inProgress) throw new Error('This action is already done');
+        if (percentage >= 100) throw new Error('Percentage should be between 0 and 100');
+        this.message.pending(percentage);
+    }
 }
