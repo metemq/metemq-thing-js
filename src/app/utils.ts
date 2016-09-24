@@ -33,27 +33,27 @@ function genChar(): string {
  * @param csvString comma-separated string
  * @returns         Array of values
  */
- export function parseJSON(jsonString: string): undefined | number | string | Array<string | number> {
-     // return empty array if string is empty
-     if (!jsonString.trim()) return undefined;
+export function parseJSON(jsonString: string): undefined | number | string | Array<string | number> {
+    // return empty array if string is empty
+    if (!jsonString.trim()) return undefined;
 
-     let ret;
+    let ret;
 
-     try {
-         ret = JSON.parse(jsonString);
-     } catch (e) {
-         throw new Error(`Cannot parse JSON string! which is ${jsonString}`);
-     }
+    try {
+        ret = JSON.parse(jsonString);
+    } catch (e) {
+        throw new Error(`Cannot parse JSON string! which is ${jsonString}`);
+    }
 
-     return ret;
+    return ret;
 
-     // function checkArrayType(arr: any[]) {
-     //     if (!_.isArray(arr)) return false;
-     //     for (let val of arr) {
-     //
-     //     }
-     // }
- }
+    // function checkArrayType(arr: any[]) {
+    //     if (!_.isArray(arr)) return false;
+    //     for (let val of arr) {
+    //
+    //     }
+    // }
+}
 
 // export function parseValue(jsonString): number | string | Array<string | number> {
 //     let arr = parseJSON(jsonString);
@@ -67,18 +67,18 @@ function genChar(): string {
  * @param values  Array of values
  * @returns       comma-separated string
  */
- export function stringifyJSON(obj: any): string {
+export function stringifyJSON(obj: any): string {
 
-     // Return undefined if it does not contain a value
-     if (!obj) return undefined;
+    // Return undefined if it does not contain a value
+    if (!obj) return undefined;
 
-     let str;
+    let str;
 
-     try {
-         str = JSON.stringify(obj);
-     } catch (e) {
-         throw new Error(`Cannot stringify JSON! which is ${obj}`);
-     }
+    try {
+        str = JSON.stringify(obj);
+    } catch (e) {
+        throw new Error(`Cannot stringify JSON! which is ${obj}`);
+    }
 
-     return str;
- }
+    return str;
+}

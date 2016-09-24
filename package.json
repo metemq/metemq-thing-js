@@ -6,7 +6,9 @@
   "scripts": {
     "pretest": "tsc",
     "test": "mocha build/test",
-    "prepublish": "tsc"
+    "prepublish": "tsc",
+    "prestart": "tsc",
+    "start": "node example/getting-started.js"
   },
   "typings": "build/app/index.d.ts",
   "repository": {
@@ -25,8 +27,8 @@
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
     "gulp-nodemon": "^2.1.0",
-    "gulp-typescript": "^2.13.6",
+    "gulp-typescript": "^3.0.0",
     "gulp-util": "^3.0.7",
-    "typescript": "^1.8.10"
+    "typescript": "^2.0.3"
   }
 }

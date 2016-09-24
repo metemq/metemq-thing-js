@@ -5,6 +5,7 @@ import { stringifyJSON, parseJSON, genMsgId } from './utils';
 import { Subscription, SubscribeTopicOptions } from './Subscription';
 import { ThingOptions, DEFAULT_THING_OPTIONS } from './thingOptions';
 import { Binding } from './binding';
+import { Action, ActionManager } from './action/action';
 
 /**
  * Thing class
@@ -19,6 +20,8 @@ export class Thing {
     mqttClient: mqtt.Client;
     mqttEmitter = new MqttEmitter();
 
+    private actionManager: ActionManager;
+
     /**
      * Constructor
      */
@@ -28,6 +31,38 @@ export class Thing {
 
         options = _.extend(DEFAULT_THING_OPTIONS, options);
         this.initialize(thingId, options);
+    }
+
+    /**
+     * Function to MQTT unsubscribe
+     *
+     * @param {string} name - what this thing is unsubscribing
+     * @param {function} [callback] - callback
+     * @return null
+     */
+    unsubscribe(name: string, callback?: Function): void {
+        if (typeof name !== 'string')
+            throw new Error('publish name should be string!');
+
+        let topic = `${this.id}/${name}/#`;
+
+        this.mqttClient.unsubscribe(topic, callback)
+    }
+
+    /**
+     * Set Action Function
+     *
+     * A Job what Client requests to Thing
+     * usage:
+     *   thing.action({
+     *     sayHi() { console.log("Hi!") }
+     *   });
+     */
+    actions(actions: { [action: string]: Function }) {
+        for (const actionName in actions) {
+            const action = actions[actionName];
+            this.actionManager.submitAction(actionName, action);
+        }
     }
 
     /**
@@ -130,20 +165,16 @@ export class Thing {
         });
     }
 
-    /**
-     * Function to MQTT unsubscribe
-     *
-     * @param {string} publishName - what this thing is unsubscribing
-     * @param {function} [callback] - callback
-     * @return void
-     */
-    unsubscribe(name: string, callback?: Function): void {
-        if (typeof name !== 'string')
-            throw new Error('publish name should be string!');
+    private actionSubscribe() {
+        this.mqttEmitter.on(`${this.id}/$inbox/#`, (payload, params) => {
+            payload = parseJSON(payload);
 
-        let topic = `${this.id}/${name}/#`;
+            let msgId = payload[0];
+            let actionName = payload[1];
+            let value = parseJSON(payload[2]);
 
-        this.mqttClient.unsubscribe(topic, callback)
+            this.actionManager.actionCall(actionName, msgId, value);
+        });
     }
 
     /**
