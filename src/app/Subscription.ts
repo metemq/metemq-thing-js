@@ -1,5 +1,5 @@
 import { Thing } from './Thing';
-import { parseCSV } from './utils';
+import { parseJSON } from './utils';
 
 /**
  * Options for MQTT subscription for a topic
@@ -88,8 +88,8 @@ export class Subscription {
             if ((topicSplit[1] === this.publishName || this.publishName === '+')
                 && (topicSplit[2] === ev || topicSplit[2] === '+')) {
 
-                let args = parseCSV(msg);
-                func(...args);
+                let args = parseJSON(msg);
+                func.apply(this.thing, args);
             }
         });
         return this;
@@ -108,8 +108,8 @@ export class Subscription {
             if (topicSplit[1] === this.publishName
                 || this.publishName === '+') {
 
-                let args = parseCSV(msg);
-                func(...args);
+                let args = parseJSON(msg);
+                func.apply(this.thing, args);
             }
         });
         return this;

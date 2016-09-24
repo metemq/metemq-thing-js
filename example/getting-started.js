@@ -1,9 +1,12 @@
 var Thing = require('..').Thing;
-var thing = new Thing('t01');
+var thing = new Thing('MY_FIRST_METEMQ_THING_JS');
 
 var sub = thing.subscribe('demo')
-sub.onAdded(function(name, age) {
+
+sub.on({
+  added(name, age){
     console.log(`${name}(${age})`);
+  }
 });
 
 thing.call('hello', function(value) {

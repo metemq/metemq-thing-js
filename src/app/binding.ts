@@ -1,5 +1,5 @@
 import { Thing } from './Thing';
-import { mkString } from './utils';
+import { stringifyJSON } from './utils';
 
 export class Binding {
 
@@ -20,6 +20,6 @@ export class Binding {
     }
 
     private sendBindMsg(value) {
-        this.thing.mqttClient.publish(`${this.thing.id}/$bind/${this.field}`, mkString(value));
+        this.thing.mqttClient.publish(`${this.thing.id}/$bind/${this.field}`, stringifyJSON(value));
     }
 }

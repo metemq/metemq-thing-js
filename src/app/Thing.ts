@@ -1,7 +1,7 @@
 import mqtt = require('mqtt');
 import _ = require('underscore');
 import MqttEmitter = require('mqtt-emitter');
-import { mkString, parseValue, genMsgId } from './utils';
+import { stringifyJSON, parseJSON, genMsgId } from './utils';
 import { Subscription, SubscribeTopicOptions } from './Subscription';
 import { ThingOptions, DEFAULT_THING_OPTIONS } from './thingOptions';
 import { Binding } from './binding';
@@ -121,7 +121,7 @@ export class Thing {
      * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
      */
     private ddmqSubscribe(name: string, params: any[], callback?: Function) {
-        this.mqttClient.publish(`${this.id}/$sub/${name}`, mkString(params));
+        this.mqttClient.publish(`${this.id}/$sub/${name}`, stringifyJSON(params));
 
         this.mqttEmitter.once(`${this.id}/$suback/${name}`, (payload) => {
             const code = Number(payload);
@@ -161,17 +161,17 @@ export class Thing {
         if (args && args.length > 0 && typeof args[args.length - 1] == 'function')
             callback = args.pop();
 
-        this.mqttClient.publish(`${this.id}/$call/${method}/${msgId}`, mkString(args));
+        this.mqttClient.publish(`${this.id}/$call/${method}/${msgId}`, stringifyJSON(args));
 
         this.mqttEmitter.once(`${this.id}/$callack/${msgId}/+code`, (payload, params) => {
             const code = Number(params.code);
             if (code)
                 throw new Error(`Method ${method} call refused: error code [${params.code[0]}]`);
             if (typeof callback === 'function')
-                callback(parseValue(payload));
+                callback(parseJSON(payload));
         });
     }
-    
+
     /**
      * 4-Way data binding
      *
