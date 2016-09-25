@@ -69,6 +69,8 @@ export function parseJSON(jsonString: string): undefined | number | string | Arr
  */
 export function stringifyJSON(obj: any): string {
 
+    if (typeof obj === 'number') return String(obj);
+
     // Return undefined if it does not contain a value
     if (!obj) return undefined;
 

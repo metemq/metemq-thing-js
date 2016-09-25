@@ -1,6 +1,6 @@
 {
   "name": "metemq-thing-js",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MeteMQ Thing for JavaScript",
   "main": "build/app/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "typings": "build/app/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:metemq/metemq-thing-js.git"
+    "url": "https://github.com/metemq/metemq-thing-js.git"
   },
   "license": "MIT",
   "dependencies": {
