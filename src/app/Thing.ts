@@ -191,11 +191,9 @@ export class Thing {
         this.mqttClient.publish(`${this.id}/$call/${method}/${msgId}`, stringifyJSON(args));
 
         this.mqttEmitter.once(`${this.id}/$callack/${msgId}/+code`, (payload, params) => {
-            const code = Number(params.code);
-            if (code)
-                throw new Error(`Method ${method} call refused: error code [${params.code[0]}]`);
-            if (typeof callback === 'function')
-                callback(parseJSON(payload));
+            const error = Number(params.code) || null;
+            if (_.isFunction(callback))
+                callback(error, parseJSON(payload));
         });
     }
 
