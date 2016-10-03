@@ -141,7 +141,7 @@ export class Thing {
             // fired on MQTT suback
             // ex) args : [{ topic: 'myThing01/$inbox/#', qos: 0 }]
             // (args[0].qos is 128 on error)
-            if (err || granted[0].qos > 2)
+            if (err || granted == undefined || granted[0].qos > 2)
                 throw new Error(`Subscription "${name}" fail: MQTT subscription fail`);
             if (typeof callback === 'function') callback();
         });
@@ -158,13 +158,14 @@ export class Thing {
      * @example DDMQSubscribeTopic('mPublishName', { event: 'added' });
      */
     private ddmqSubscribe(name: string, params: any[], callback?: Function) {
-        this.mqttClient.publish(`${this.id}/$sub/${name}`, stringifyJSON(params));
 
         this.mqttEmitter.once(`${this.id}/$suback/${name}`, (payload) => {
             const code = Number(payload);
             if (code) throw new Error('Subscription refused');
             if (typeof callback === 'function') callback();
         });
+
+        this.mqttClient.publish(`${this.id}/$sub/${name}`, stringifyJSON(params));
     }
 
     private actionSubscribe() {
