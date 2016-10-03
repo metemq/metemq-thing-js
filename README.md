@@ -82,7 +82,7 @@ gulp watch
 
 -------------------------------------------------------
 <a name="constructor"></a>
-### constructor(thingId: string, options?: ThingOptions)
+### Constructor(thingId: string, options?: ThingOptions)
 
 Initialize New Thing
 
