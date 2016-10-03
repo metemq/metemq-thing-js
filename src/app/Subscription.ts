@@ -114,4 +114,14 @@ export class Subscription {
         });
         return this;
     }
+
+    /**
+     * Function to MQTT unsubscribe
+     *
+     * @param {Function} function
+     * @return Subscription
+     */
+   unsubscribe(callback?: Function): void {
+       this.thing.unsubscribe(this.publishName, callback);
+   }
 }
