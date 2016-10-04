@@ -224,7 +224,7 @@ sub.on({
   },
   removed(payload) {
     doOnRemoved(payload);
-  },
+  }
 })
 ```
 
