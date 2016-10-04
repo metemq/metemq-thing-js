@@ -6,8 +6,8 @@
 MeteMQ Thing library for Node.js
 
 * [Getting Started](#getting_started)
-* [How to test?](#how_to_test)
 * [API](#api)
+* [How to test?](#how_to_test)
 
 <a name="getting_started"></a>
 # Getting Started
@@ -47,20 +47,6 @@ thing.actions({
   }
 })
 ```
-
-<a name="how_to_test"></a>
-# How to test?
-
-```bash
-npm test
-```
-
-Or, in order to watch
-
-```bash
-gulp watch
-```
-
 
 <a name="api"></a>
 # API
@@ -281,4 +267,17 @@ Function to MQTT unsubscribe
 thing.unsubscribe('pub_name', function() {
   // successfully unsubscribed.
 });
+```
+
+<a name="how_to_test"></a>
+# How to test?
+
+```bash
+npm test
+```
+
+Or, in order to watch
+
+```bash
+gulp watch
 ```
