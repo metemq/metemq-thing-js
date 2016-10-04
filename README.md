@@ -82,7 +82,7 @@ gulp watch
 
 -------------------------------------------------------
 <a name="constructor"></a>
-### constructor(thingId: string, options?: ThingOptions)
+### Constructor(thingId: string, options?: ThingOptions)
 
 Initialize New Thing
 
@@ -161,7 +161,7 @@ thing.actions({
 <a name="subscribe"></a>
 ### thing.subscribe(name: string, ...args: any[]): Subscription
 
-Function for __MQTT subscription__ a publication
+Function for __MQTT subscription__
 
 ```javascript
 var sub = thing.subscribe('pub_name', function() {
@@ -229,7 +229,7 @@ sub.onRemoved(function (payload) {
 Listener for three environments - `added`, `changed`, and `removed`
 
 ```javascript
-sub.on(
+sub.on({
   function (payload) {
     doOnAdded (payload);
   },
@@ -239,7 +239,7 @@ sub.on(
   function (payload) {
     doOnRemoved(payload);
   },
-)
+})
 ```
 
 -------------------------------------------------------
