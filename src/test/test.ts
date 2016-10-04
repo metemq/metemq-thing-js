@@ -34,11 +34,7 @@ describe('class Thing', function() {
     it('should bind a field', function(done) {
       temperBind = thing.bind('temperature');
 
-      done();
-    });
-
-    it('', function(done) {
-      var data = 'data_from_sensor';
+      data = 'data_from_sensor';
       temperBind.set(data);
 
       done();
@@ -115,23 +111,7 @@ describe('class Thing', function() {
 
       done();
     });
-/*
-    it('should handle three events at once', function(done) {
-      sub.on({
-        added (payload) {
-          // doOnAdded (payload);
-        },
-        changed (payload) {
-          // doOnChanged(payload);
-        },
-        removed (payload) {
-          // doOnRemoved(payload);
-        }
-      })
 
-      done();
-    });
-*/
     it('should handle any event', function(done) {
       sub.onAny(function (payload) {
         // doSomething(payload);
