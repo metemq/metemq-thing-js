@@ -1,5 +1,9 @@
 import { assert } from 'chai';
 import { Thing } from '../app/Thing';
+import * as mosca from 'mosca';
+
+let broker_port = 5555;
+let broker = new mosca.Server({ port: broker_port });
 
 
 describe('class Thing', function() {
@@ -74,9 +78,9 @@ describe('class Thing', function() {
     it('should subscribe a field', function(done) {
       sub = thing.subscribe('pub_name', function() {
         // successfully subscribed.
+              done();
       });
 
-      done();
     });
 
     it('should handle an event', function(done) {
@@ -113,13 +117,6 @@ describe('class Thing', function() {
 
     it('should unsubscribe by Subscription', function(done) {
       sub.unsubscribe(function() {
-        // successfully unsubscribed.
-        done();
-      });
-    });
-
-    it('should unsubscribe by Thing', function(done) {
-      thing.unsubscribe('pub_name', function() {
         // successfully unsubscribed.
         done();
       });
