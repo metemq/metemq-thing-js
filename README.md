@@ -230,13 +230,13 @@ Listener for three environments - `added`, `changed`, and `removed`
 
 ```javascript
 sub.on({
-  function (payload) {
+  added(payload) {
     doOnAdded (payload);
   },
-  function (payload) {
+  changed(payload) {
     doOnChanged(payload);
   },
-  function (payload) {
+  removed(payload) {
     doOnRemoved(payload);
   },
 })
