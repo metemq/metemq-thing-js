@@ -12,13 +12,14 @@ describe('class Thing', function() {
   let data;
   let sub;
 
+  this.timeout(5000);
 
   describe('#Constructor', function() {
     it('should initialize Thing correctly', function(done) {
       thing = new Thing('test_thing-js_edison', {
         username: 'user01',
         password: 'secret',
-        url: 'mqtt://metemq.com'
+        url: 'mqtt://localhost:5555'
       });
 
       done();
@@ -76,11 +77,8 @@ describe('class Thing', function() {
   describe('#subscribe', function() {
 
     it('should subscribe a field', function(done) {
-      sub = thing.subscribe('pub_name', function() {
-        // successfully subscribed.
-              done();
-      });
-
+      sub = thing.subscribe('temp');
+      done();
     });
 
     it('should handle an event', function(done) {
