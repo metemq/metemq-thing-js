@@ -36,7 +36,7 @@ export class ActionManager {
 
     actionCall(msgId: string, name: string, params: any[]) {
         const progress = 0;
-        const msg = new Mes
+        const msg = new Message(msgId, this);
 
         // Reject if there is no such action
         if (!this.actions[name]) return msg.rejected();
