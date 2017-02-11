@@ -36,10 +36,7 @@ export class ActionManager {
 
     actionCall(msgId: string, name: string, params: any[]) {
         const progress = 0;
-        const msg = new Message(msgId, this);
-
-        // Check message duplication
-        if (this.messages[msgId]) return; /* XXX Is this needed? */
+        const msg = new Mes
 
         // Reject if there is no such action
         if (!this.actions[name]) return msg.rejected();
